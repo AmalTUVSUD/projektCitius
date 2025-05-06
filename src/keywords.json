@@ -1,0 +1,17 @@
+{
+    "class": ["class I", "class II", "class III"],
+    "IPX": ["IPX0", "IPX3", "IPX4", "IPX7"],
+    "batteries": [],
+    "water valves": [],
+    "phase": ["three-phase", "single-phase", "multi-phase"],
+    "stationary appliance":[],
+    "appliance": ["portable appliance", "hand-held appliance", "fixed appliance", "built-in appliance", "Motor-operated appliance",
+     "combined appliance", "battery-operated appliance"],
+    "type": ["type X", "type Y", "type Z"],
+    "functional earth": [],
+    "permanently connected": [],
+    "safety components": [ "thermostat", "temperature limiter", "thermal cut-out", "self-resetting thermal cut-out", 
+    "non-self-resetting thermal cut-out", "protective device", "thermal link", "intentionally weak part"],
+    "water mains": [],
+    "Heating appliances": []
+}

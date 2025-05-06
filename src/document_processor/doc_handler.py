@@ -1,5 +1,6 @@
 import win32com.client as win32
 from pathlib import Path
+import time
 import os
 
 
@@ -8,50 +9,51 @@ class DocHandler:
         self.word = win32.Dispatch("Word.Application")
         self.word.Visible = False
         self.doc = None
+        self.file_path = None
 
     def open_doc(self, file_path):
         if not Path(file_path).exists():
-            raise FileNotFoundError(f"File not found: {input_path}")
+            raise FileNotFoundError(f"File not found! {file_path}")
         if not file_path.lower().endswith('.doc'):
             raise ValueError("File is not a .doc file")
-        return self.word.Documents.Open(os.path.abspath(file_path))
-
+        self.file_path = file_path
+        self.doc =self.word.Documents.Open(file_path, ReadOnly=0)
+        time.sleep(1)  # Give Word time to fully load the document
+        print("Actual type:", type(self.doc))
+        print("Has Tables attribute:", hasattr(self.doc, "Tables"))        
+        return self.doc
 
     def close_doc(self):
         if self.doc:
-            self.doc.Close(SaveChanges=False)
-            self.doc = None
-
-    def quit_word(self):
+            self.doc.Close()
         self.word.Quit()
-
-    def get_tables(self):
-        if not self.doc:
-            raise ValueError("No document is open")
-        tables = self.doc.Tables
-        return tables
     
-    def save_doc(self, file_path):
-        if not self.doc:
-            raise ValueError("No document is open")
-        self.doc.SaveAs(os.path.abspath(file_path))
-        self.doc.Close(SaveChanges=False)
+    def save_doc(self):
+        if self.doc is None:
+            raise RuntimeError("No document is open")
+        self.doc.SaveAs( self.file_path, FileFormat=0)  # 0 for .doc format
 
+    def count_tables(self):
+        if self.doc is None:
+           raise RuntimeError("No document is open")
+        print("Has Tables attribute:", hasattr(self.doc, "Tables"))
+        return self.doc.Tables.Count
 
-# Initialize
-doc_handler = DocHandler()
+    def print_first_3_tables(self):
+        if self.doc is None:
+            raise RuntimeError("No document is open")
 
-# Open file
-doc = doc_handler.open_doc("input/Test_TRF.doc")
+        tables = self.doc.Tables
+        num_tables = tables.Count
+        print(f"Total tables: {num_tables}")
 
-# Process tables
-tables = doc_handler.get_tables(doc)
-for table in tables:
-    # Modify table content (example: uppercase first cell)
-    table.Cell(1, 1).Range.Text = table.Cell(1, 1).Range.Text.upper()
-
-# Save changes
-doc_handler.save_as_doc(doc, "output/Modified_TRF.doc")
-
-# Clean up
-doc_handler.close()
+    # Print first 3 tables or all tables if less than 3
+        for t_index in range(min(6, num_tables)):
+            print(f"\nTable {t_index + 1}:")
+            table = tables[t_index + 1]  # Index is 1-based in Word's COM API
+            for row in table.Rows:
+                row_data = []
+                for cell in row.Cells:
+                    text = cell.Range.Text.strip().replace('\r\x07', '')  # Clean cell text
+                    row_data.append(text)
+                print('\t'.join(row_data))

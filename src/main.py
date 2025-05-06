@@ -1,17 +1,17 @@
-import win32com.client as win32
-from pathlib import Path
-import os
+from document_processor.doc_handler import DocHandler
 
-def get_file():
-    while True:
-        file_path = input("Enter the path to the .doc file: ").strip('"\'')
 
-        #Validate file path
-        path = Path(file_path)
-        if not path.exists():
-            print(f"File not found: {file_path}")
-            continue
-        if path.suffix.lower() != '.doc':
-            print("File is not a .doc file")
-            continue
-        return path
+# Initialize
+doc_handler = DocHandler()
+
+# Open file
+doc =doc_handler.open_doc("C:/Users/smaou-am/projektCitius/input/Test_TRF.doc")
+print("Document opened:", doc_handler.doc is not None)
+
+# Count tables
+doc_handler.print_first_3_tables()
+# Save changes
+doc_handler.save_doc()
+
+# Clean up
+doc_handler.close_doc()
